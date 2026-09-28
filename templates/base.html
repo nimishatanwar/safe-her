@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SafeHer – Smart Women Safety & Emergency Alert System{% endblock %}</title>
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛡️</text></svg>">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block head_extra %}{% endblock %}
+</head>
+<body class="safeher-body">
+    <!-- Top Emergency Helpline Banner -->
+    <div class="emergency-top-ticker py-1 px-3 d-flex align-items-center justify-content-between flex-wrap text-white">
+        <div class="d-flex align-items-center gap-2 font-weight-bold fs-7">
+            <span class="badge bg-danger blink-badge"><i class="fa-solid fa-triangle-exclamation"></i> 24/7 HELPLINE</span>
+            <span class="d-none d-md-inline">Emergency Speed Dial:</span>
+        </div>
+        <div class="d-flex align-items-center gap-3 fs-7 flex-wrap helpline-links">
+            <a href="tel:112" class="text-white text-decoration-none"><i class="fa-solid fa-phone-volume text-warning"></i> National SOS: <strong>112</strong></a>
+            <span class="text-white-50">|</span>
+            <a href="tel:1091" class="text-white text-decoration-none"><i class="fa-solid fa-shield-heart text-pink"></i> Women Helpline: <strong>1091</strong></a>
+            <span class="text-white-50">|</span>
+            <a href="tel:100" class="text-white text-decoration-none"><i class="fa-solid fa-shield-halved text-info"></i> Police: <strong>100</strong></a>
+            <span class="text-white-50">|</span>
+            <a href="tel:108" class="text-white text-decoration-none"><i class="fa-solid fa-truck-medical text-danger"></i> Ambulance: <strong>108</strong></a>
+        </div>
+    </div>
+
+    <!-- Main Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark-glass sticky-top">
+        <div class="container-fluid px-lg-4">
+            <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-gradient" href="{{ url_for('index') }}">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-shield-heart"></i>
+                </div>
+                <span>Safe<span class="brand-accent">Her</span></span>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#safeherNav" aria-controls="safeherNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="safeherNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-1">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'index' %}active{% endif %}" href="{{ url_for('index') }}">
+                            <i class="fa-solid fa-house"></i> Home
+                        </a>
+                    </li>
+                    {% if current_user %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">
+                            <i class="fa-solid fa-gauge-high"></i> Safety Hub
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'contacts_view' %}active{% endif %}" href="{{ url_for('contacts_view') }}">
+                            <i class="fa-solid fa-user-group"></i> Trusted Contacts
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'map_view' %}active{% endif %}" href="{{ url_for('map_view') }}">
+                            <i class="fa-solid fa-map-location-dot"></i> Safe Places Map
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'fake_call_view' %}active{% endif %}" href="{{ url_for('fake_call_view') }}">
+                            <i class="fa-solid fa-phone-slash"></i> Fake Call Escape
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'alert_history_view' %}active{% endif %}" href="{{ url_for('alert_history_view') }}">
+                            <i class="fa-solid fa-clock-rotate-left"></i> SOS History
+                        </a>
+                    </li>
+                    {% if current_user.role == 'admin' %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle text-warning fw-semibold" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fa-solid fa-headset"></i> Admin Command
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-dark">
+                            <li><a class="dropdown-item" href="{{ url_for('admin_dashboard') }}"><i class="fa-solid fa-tower-broadcast text-danger"></i> Live SOS Monitoring</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('admin_users') }}"><i class="fa-solid fa-users text-primary"></i> Registered Users</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('admin_safe_locations') }}"><i class="fa-solid fa-location-dot text-success"></i> Manage Safe Havens</a></li>
+                        </ul>
+                    </li>
+                    {% endif %}
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'map_view' %}active{% endif %}" href="{{ url_for('map_view') }}">
+                            <i class="fa-solid fa-map-location-dot"></i> Safe Places
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'fake_call_view' %}active{% endif %}" href="{{ url_for('fake_call_view') }}">
+                            <i class="fa-solid fa-phone-slash"></i> Fake Call Escape
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+
+                <!-- Right Action Bar -->
+                <div class="d-flex align-items-center gap-2">
+                    {% if current_user %}
+                    <div class="dropdown">
+                        <button class="btn btn-outline-light btn-sm rounded-pill px-3 dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown">
+                            <span class="user-avatar-badge">{{ current_user.name[:1].upper() }}</span>
+                            <span class="d-none d-sm-inline">{{ current_user.name }}</span>
+                            {% if current_user.role == 'admin' %}
+                            <span class="badge bg-warning text-dark py-0 px-1">Admin</span>
+                            {% endif %}
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark shadow">
+                            <li><h6 class="dropdown-header">{{ current_user.email }}</h6></li>
+                            <li><a class="dropdown-item" href="{{ url_for('profile_view') }}"><i class="fa-solid fa-user-pen text-info"></i> Edit Profile</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('contacts_view') }}"><i class="fa-solid fa-users-viewfinder text-primary"></i> Emergency Contacts</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="{{ url_for('logout') }}"><i class="fa-solid fa-right-from-bracket"></i> Sign Out</a></li>
+                        </ul>
+                    </div>
+                    <button class="btn btn-danger btn-sm rounded-pill px-3 fw-bold pulse-quick-btn" onclick="quickSosTrigger()">
+                        <i class="fa-solid fa-bell"></i> SOS
+                    </button>
+                    {% else %}
+                    <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                        <i class="fa-solid fa-right-to-bracket"></i> Sign In
+                    </a>
+                    <a href="{{ url_for('register') }}" class="btn btn-primary btn-sm rounded-pill px-3 fw-bold">
+                        <i class="fa-solid fa-user-plus"></i> Join SafeHer
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Notification Messages -->
+    <div class="container-fluid px-lg-4 mt-3">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show shadow-sm" role="alert">
+                        <i class="fa-solid {{ 'fa-circle-exclamation' if category in ['error', 'danger'] else ('fa-circle-check' if category == 'success' else 'fa-circle-info') }} me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Active SOS Top Alert Banner (Dynamically displayed when active emergency exists) -->
+    <div id="activeSosBanner" class="alert alert-danger mx-3 my-2 d-none shadow-lg border-danger animate-pulse" role="alert">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-3">
+                <div class="spinner-grow text-danger" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <div>
+                    <strong><i class="fa-solid fa-triangle-exclamation"></i> ACTIVE EMERGENCY ALERT IN PROGRESS!</strong>
+                    <div class="small text-muted" id="activeSosBannerText">Your SOS has been dispatched. Responders and contacts notified.</div>
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-danger" onclick="cancelActiveSos()"><i class="fa-solid fa-check"></i> I am Safe Now (Cancel SOS)</button>
+                <a href="{{ url_for('alert_history_view') }}" class="btn btn-sm btn-danger"><i class="fa-solid fa-eye"></i> View Live Details</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dynamic Content Block -->
+    <main class="main-content-wrapper">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Quick SOS Confirmation Modal -->
+    <div class="modal fade" id="sosModal" tabindex="-1" aria-labelledby="sosModalLabel" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-white border-danger shadow-2xl">
+                <div class="modal-header border-danger bg-danger-subtle text-danger">
+                    <h5 class="modal-title fw-bold" id="sosModalLabel"><i class="fa-solid fa-triangle-exclamation fa-beat"></i> EMERGENCY SOS ACTIVATION</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" id="cancelSosCountdownBtn"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <div class="sos-countdown-ring mx-auto mb-3" id="sosCountdownRing">
+                        <span id="sosCountdownNumber" class="display-3 fw-bold text-danger">3</span>
+                    </div>
+                    <h5 class="fw-bold mb-1">Broadcasting Distress Alert</h5>
+                    <p class="text-white-50 small mb-3">Fetching high-precision GPS coordinates & notifying all emergency contacts...</p>
+                    
+                    <div class="mb-3 text-start">
+                        <label class="form-label small text-white-50">Emergency Nature (Optional):</label>
+                        <select id="modalAlertType" class="form-select form-select-sm bg-secondary text-white border-0">
+                            <option value="Immediate Distress" selected>⚠️ Immediate Distress / General Threat</option>
+                            <option value="Being Followed / Stalked">👁️ Being Followed / Stalked</option>
+                            <option value="Physical Harassment">🚨 Physical Harassment / Assault</option>
+                            <option value="Medical Emergency">🏥 Severe Medical Emergency</option>
+                            <option value="Road Accident / Stranded">🚗 Road Accident / Stranded at Night</option>
+                            <option value="Domestic Threat">🏠 Domestic Violence / Threat</option>
+                        </select>
+                    </div>
+
+                    <div id="modalLocationStatus" class="small text-info mb-2">
+                        <i class="fa-solid fa-location-crosshairs fa-spin"></i> Acquiring satellite GPS coordinates...
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary justify-content-between">
+                    <button type="button" class="btn btn-outline-light rounded-pill px-4" data-bs-dismiss="modal" id="sosCancelImmediateBtn">
+                        <i class="fa-solid fa-xmark"></i> Cancel (False Alarm)
+                    </button>
+                    <button type="button" class="btn btn-danger rounded-pill px-4 fw-bold" id="sosSendNowBtn" onclick="executeSosTriggerNow()">
+                        <i class="fa-solid fa-paper-plane"></i> SEND NOW
+                    </button>
+                </div>
+            </div>
+        </div>
+    <!-- SMS Gateway Configuration Modal -->
+    <div class="modal fade" id="smsGatewayModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-white border-warning shadow-2xl">
+                <div class="modal-header border-warning bg-warning bg-opacity-10">
+                    <h5 class="modal-title fw-bold text-warning"><i class="fa-solid fa-tower-broadcast me-2"></i> SMS Gateway Configuration</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="small text-white-50">
+                        To enable <strong>automatic silent carrier SMS</strong> delivered directly to your contacts' mobile phones without needing them to click WhatsApp, configure your API key below:
+                    </p>
+
+                    <ul class="nav nav-pills nav-fill mb-3" id="pills-tab" role="tablist">
+                        <li class="nav-item">
+                            <button class="nav-link active btn-sm" id="pills-fast2sms-tab" data-bs-toggle="pill" data-bs-target="#pills-fast2sms">Fast2SMS (India)</button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link btn-sm" id="pills-twilio-tab" data-bs-toggle="pill" data-bs-target="#pills-twilio">Twilio (Global)</button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content">
+                        <!-- Fast2SMS Tab -->
+                        <div class="tab-pane fade show active" id="pills-fast2sms">
+                            <div class="small text-info mb-2"><i class="fa-solid fa-bolt"></i> Fast2SMS sends instant carrier SMS to Indian numbers (+91).</div>
+                            <div class="mb-3">
+                                <label class="form-label small text-white-50">Fast2SMS Authorization API Key</label>
+                                <input type="password" class="form-control bg-secondary bg-opacity-25 text-white border-secondary" id="gatewayFast2SmsKey" placeholder="Paste your Fast2SMS API Key">
+                                <div class="form-text text-white-50" style="font-size: 0.75rem;">Get free API credits on fast2sms.com</div>
+                            </div>
+                        </div>
+
+                        <!-- Twilio Tab -->
+                        <div class="tab-pane fade" id="pills-twilio">
+                            <div class="small text-info mb-2"><i class="fa-solid fa-globe"></i> Twilio sends global carrier SMS to any country.</div>
+                            <div class="mb-2">
+                                <label class="form-label small text-white-50">Account SID</label>
+                                <input type="text" class="form-control bg-secondary bg-opacity-25 text-white border-secondary" id="gatewayTwilioSid" placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxx">
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label small text-white-50">Auth Token</label>
+                                <input type="password" class="form-control bg-secondary bg-opacity-25 text-white border-secondary" id="gatewayTwilioToken" placeholder="Auth Token">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small text-white-50">Twilio Phone Number</label>
+                                <input type="text" class="form-control bg-secondary bg-opacity-25 text-white border-secondary" id="gatewayTwilioPhone" placeholder="+1xxxxxxxxxx">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-outline-light rounded-pill" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-warning rounded-pill px-4 fw-bold" onclick="saveSmsGatewayConfig()">Save & Enable Carrier SMS</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="safeher-footer py-4 text-white-50 mt-5 border-top border-secondary">
+        <div class="container-fluid px-lg-4">
+            <div class="row gy-3 align-items-center">
+                <div class="col-md-6 text-center text-md-start">
+                    <span class="fw-bold text-white"><i class="fa-solid fa-shield-heart text-danger"></i> SafeHer</span> &copy; 2026. Smart Women Safety & Emergency Alert System.
+                    <div class="small">Designed to save lives through fast, one-tap emergency communications.</div>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <span class="badge bg-secondary me-2"><i class="fa-solid fa-satellite-dish"></i> GPS Tracking Enabled</span>
+                    <span class="badge bg-secondary me-2"><i class="fa-solid fa-lock"></i> Secure & Encrypted</span>
+                    <a href="tel:112" class="badge bg-danger text-decoration-none"><i class="fa-solid fa-phone"></i> Dial 112</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!-- Core JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/sos.js') }}"></script>
+    {% block scripts_extra %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+
+{% block title %}SafeHer – Smart Women Safety & Emergency Assistance Platform{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-lg-5 py-4">
+    <!-- Hero Section -->
+    <div class="row align-items-center gy-4 mb-5">
+        <div class="col-lg-7">
+            <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill bg-danger bg-opacity-20 text-danger border border-danger border-opacity-25 mb-3">
+                <i class="fa-solid fa-satellite-dish fa-beat"></i>
+                <span class="small fw-bold">Instant GPS Distress Broadcasting & Speed Dial</span>
+            </div>
+            <h1 class="display-4 fw-extrabold text-white mb-3">
+                Seconds Matter. <br>
+                <span class="text-gradient">Your Smart Shield in Any Emergency.</span>
+            </h1>
+            <p class="lead text-white-50 mb-4" style="max-width: 620px;">
+                SafeHer is an emergency assistance platform engineered to minimize the steps required to request help. Broadcast high-precision GPS coordinates, trigger automated alerts to trusted guardians, locate nearby police and safe havens, and escape menacing situations in a single tap.
+            </p>
+
+            <div class="d-flex flex-wrap gap-3 mb-4">
+                {% if current_user %}
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg rounded-pill px-4 fw-bold shadow-lg">
+                        <i class="fa-solid fa-gauge-high me-2"></i> Go to Safety Hub
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg rounded-pill px-4 fw-bold shadow-lg">
+                        <i class="fa-solid fa-shield-heart me-2"></i> Join SafeHer Free
+                    </a>
+                    <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg rounded-pill px-4">
+                        <i class="fa-solid fa-right-to-bracket me-2"></i> Sign In
+                    </a>
+                {% endif %}
+                <button class="btn btn-danger btn-lg rounded-pill px-4 fw-bold shadow-lg pulse-quick-btn" onclick="quickSosTrigger()">
+                    <i class="fa-solid fa-triangle-exclamation me-2"></i> ONE-TAP SOS
+                </button>
+            </div>
+
+            <!-- Demo Credentials Helper Card -->
+            <div class="card safeher-card p-3 border-info border-opacity-25" style="max-width: 580px;">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="small text-info fw-bold"><i class="fa-solid fa-key"></i> Quick Demo Logins:</span>
+                    <span class="badge bg-secondary">Instant Testing</span>
+                </div>
+                <div class="row g-2 small">
+                    <div class="col-sm-6">
+                        <div class="p-2 rounded bg-dark border border-secondary">
+                            <strong class="text-white">User Account:</strong><br>
+                            <code>priya@safeher.com</code> / <code>user123</code>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="p-2 rounded bg-dark border border-secondary">
+                            <strong class="text-warning">Admin Command:</strong><br>
+                            <code>admin@safeher.com</code> / <code>admin123</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Big Hero SOS Panic Button Interactive Widget -->
+        <div class="col-lg-5 text-center">
+            <div class="safeher-card p-4 text-center">
+                <span class="badge bg-danger bg-opacity-25 text-danger border border-danger px-3 py-1 rounded-pill mb-3">
+                    <i class="fa-solid fa-hand-fist"></i> Instant Panic Activation
+                </span>
+                <h4 class="fw-bold text-white mb-1">Press In Emergency</h4>
+                <p class="text-white-50 small mb-3">Captures current satellite location & dispatches urgent alerts</p>
+
+                <div class="sos-button-wrapper my-2">
+                    <div class="sos-pulse-ring"></div>
+                    <div class="sos-pulse-ring-2"></div>
+                    <button class="btn-sos-main" onclick="quickSosTrigger()" aria-label="Activate Emergency SOS">
+                        <span>SOS</span>
+                        <span class="sos-subtext">Tap For Help</span>
+                    </button>
+                </div>
+
+                <div class="d-flex justify-content-center gap-2 mt-3">
+                    <button id="sirenToggleBtn" class="btn btn-outline-warning btn-sm rounded-pill px-3" onclick="toggleSafetySiren()">
+                        <i class="fa-solid fa-volume-high text-warning"></i> Start Loud Siren
+                    </button>
+                    <a href="{{ url_for('fake_call_view') }}" class="btn btn-outline-info btn-sm rounded-pill px-3">
+                        <i class="fa-solid fa-phone-slash"></i> Fake Call Escape
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Core Features Grid -->
+    <div class="row gy-4 mb-5">
+        <div class="col-12 text-center mb-2">
+            <h2 class="fw-bold text-white">Engineered For Fast, Uncompromising Safety</h2>
+            <p class="text-white-50">Every second is optimized to remove friction between distress and safety response.</p>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="safeher-card p-4 h-100">
+                <div class="card-title-icon bg-danger bg-opacity-25 text-danger mb-3">
+                    <i class="fa-solid fa-satellite-dish"></i>
+                </div>
+                <h5 class="fw-bold text-white">One-Tap SOS</h5>
+                <p class="text-white-50 small">
+                    Instant emergency activation with 3-second cancel window, capturing exact latitude, longitude, and reverse geocoded street address.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="safeher-card p-4 h-100">
+                <div class="card-title-icon bg-primary bg-opacity-25 text-primary mb-3">
+                    <i class="fa-solid fa-user-group"></i>
+                </div>
+                <h5 class="fw-bold text-white">Guardian Contacts</h5>
+                <p class="text-white-50 small">
+                    Manage priority contacts (parents, siblings, trusted friends) with 1-click WhatsApp alerts, SMS notifications, and speed dial.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="safeher-card p-4 h-100">
+                <div class="card-title-icon bg-success bg-opacity-25 text-success mb-3">
+                    <i class="fa-solid fa-map-location-dot"></i>
+                </div>
+                <h5 class="fw-bold text-white">Safe Havens Map</h5>
+                <p class="text-white-50 small">
+                    Leaflet & OpenStreetMap powered map showing nearby police stations, 24x7 pharmacies, hospitals, and pink booths with live distance.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="safeher-card p-4 h-100">
+                <div class="card-title-icon bg-warning bg-opacity-25 text-warning mb-3">
+                    <i class="fa-solid fa-headset"></i>
+                </div>
+                <h5 class="fw-bold text-white">Command Center</h5>
+                <p class="text-white-50 small">
+                    Administrative monitoring dashboard with live incident alerts, dispatch notes, real-time map tracking, and resolution auditing.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Official Emergency Speed Dial Grid -->
+    <div class="safeher-card p-4 mb-5">
+        <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+            <div>
+                <h4 class="fw-bold text-white mb-0"><i class="fa-solid fa-phone-volume text-danger me-2"></i> National Emergency Speed Dial</h4>
+                <div class="text-white-50 small">Direct single-touch calling to official emergency dispatch centers</div>
+            </div>
+            <span class="badge bg-danger">Toll-Free & 24/7 Available</span>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-sm-6 col-md-3">
+                <a href="tel:112" class="speed-dial-card">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="speed-dial-icon bg-danger text-white">
+                            <i class="fa-solid fa-phone-volume"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold">National SOS</div>
+                            <div class="text-white-50 small">All Emergencies</div>
+                        </div>
+                    </div>
+                    <div class="fs-5 fw-bold text-danger">112</div>
+                </a>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <a href="tel:1091" class="speed-dial-card">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="speed-dial-icon bg-pink text-white" style="background: #ec4899;">
+                            <i class="fa-solid fa-shield-heart"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold">Women Helpline</div>
+                            <div class="text-white-50 small">24/7 Protection</div>
+                        </div>
+                    </div>
+                    <div class="fs-5 fw-bold text-pink">1091</div>
+                </a>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <a href="tel:100" class="speed-dial-card">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="speed-dial-icon bg-primary text-white">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold">Police Dispatch</div>
+                            <div class="text-white-50 small">Immediate Patrol</div>
+                        </div>
+                    </div>
+                    <div class="fs-5 fw-bold text-primary">100</div>
+                </a>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <a href="tel:108" class="speed-dial-card">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="speed-dial-icon bg-success text-white">
+                            <i class="fa-solid fa-truck-medical"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold">Ambulance</div>
+                            <div class="text-white-50 small">Medical Trauma</div>
+                        </div>
+                    </div>
+                    <div class="fs-5 fw-bold text-success">108</div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

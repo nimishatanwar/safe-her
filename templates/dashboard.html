@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+
+{% block title %}Safety Hub – SafeHer Smart Emergency Platform{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-lg-4 py-4">
+    <!-- User Status Banner -->
+    <div class="row align-items-center mb-4 gy-2">
+        <div class="col-md-7">
+            <h2 class="fw-bold text-white mb-1">
+                Hello, <span class="text-gradient">{{ current_user.name }}</span>
+            </h2>
+            <div class="d-flex align-items-center gap-3 text-white-50 small flex-wrap">
+                <span><i class="fa-solid fa-phone text-info"></i> {{ current_user.phone }}</span>
+                <span>•</span>
+                <span><i class="fa-solid fa-droplet text-danger"></i> Blood Group: <strong>{{ current_user.blood_group or 'Not set' }}</strong></span>
+                <span>•</span>
+                <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-25"><i class="fa-solid fa-shield-check"></i> System Armed</span>
+            </div>
+        </div>
+        <div class="col-md-5 text-md-end">
+            <a href="{{ url_for('contacts_view') }}" class="btn btn-outline-light btn-sm rounded-pill me-2">
+                <i class="fa-solid fa-user-plus text-primary"></i> Add Guardian Contact
+            </a>
+            <a href="{{ url_for('fake_call_view') }}" class="btn btn-outline-info btn-sm rounded-pill">
+                <i class="fa-solid fa-phone-slash"></i> Fake Call Escape
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="row g-4">
+        <!-- Left Column: SOS Trigger & Panic Tools -->
+        <div class="col-lg-5">
+            <div class="safeher-card p-4 text-center h-100 d-flex flex-column justify-content-between">
+                <div>
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="badge bg-danger bg-opacity-25 text-danger border border-danger px-3 py-1 rounded-pill">
+                            <i class="fa-solid fa-radiation fa-spin"></i> ONE-TOUCH TRIGGER
+                        </span>
+                        <span id="dashboardGpsStatus" class="small text-info">
+                            <i class="fa-solid fa-location-crosshairs fa-spin"></i> GPS Active
+                        </span>
+                    </div>
+
+                    <h3 class="fw-bold text-white mb-1">Emergency Panic Button</h3>
+                    <p class="text-white-50 small mb-4">
+                        Pressing this captures your pinpoint satellite GPS and alerts all <strong>{{ contacts|length }}</strong> emergency contacts.
+                    </p>
+
+                    <!-- Large Pulsing SOS Button -->
+                    <div class="sos-button-wrapper my-3">
+                        <div class="sos-pulse-ring"></div>
+                        <div class="sos-pulse-ring-2"></div>
+                        <button class="btn-sos-main" onclick="quickSosTrigger()" aria-label="Trigger SOS Emergency Alert">
+                            <span>SOS</span>
+                            <span class="sos-subtext">Press For Help</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Emergency Siren & Audio Tools -->
+                <div class="mt-4 pt-3 border-top border-secondary">
+                    <div class="d-grid gap-2 d-sm-flex justify-content-center">
+                        <button id="sirenToggleBtn" class="btn btn-outline-warning rounded-pill px-4 fw-bold" onclick="toggleSafetySiren()">
+                            <i class="fa-solid fa-volume-high text-warning me-1"></i> Start Loud Siren
+                        </button>
+                        <a href="{{ url_for('fake_call_view') }}" class="btn btn-outline-info rounded-pill px-4">
+                            <i class="fa-solid fa-phone-slash me-1"></i> Escape Call
+                        </a>
+                    </div>
+                    <div class="text-white-50 small mt-2">
+                        <i class="fa-solid fa-circle-info"></i> The siren uses loud dual-pitch modulation to deter attackers and attract bystanders.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Guardians & Quick Speed Dial -->
+        <div class="col-lg-7">
+            <div class="row g-3">
+                <!-- Guardian Contacts Quick Dial Card -->
+                <div class="col-12">
+                    <div class="safeher-card p-4">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="card-title-icon bg-primary bg-opacity-25 text-primary">
+                                    <i class="fa-solid fa-users-viewfinder"></i>
+                                </div>
+                                <div>
+                                    <h5 class="fw-bold text-white mb-0">Your Trusted Emergency Contacts</h5>
+                                    <div class="text-white-50 small">One-click direct call or instant WhatsApp distress message</div>
+                                </div>
+                            </div>
+                            <a href="{{ url_for('contacts_view') }}" class="btn btn-sm btn-outline-light rounded-pill">Manage</a>
+                        </div>
+
+                        {% if contacts %}
+                        <div class="row g-2">
+                            {% for contact in contacts %}
+                            <div class="col-md-6">
+                                <div class="p-3 rounded-3 bg-dark border border-secondary d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <div class="fw-bold text-white d-flex align-items-center gap-1">
+                                            {{ contact.name }}
+                                            {% if contact.is_primary %}
+                                            <span class="badge bg-warning text-dark py-0 px-1" style="font-size: 0.65rem;">Primary</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="text-white-50 small"><i class="fa-solid fa-user-tag text-info"></i> {{ contact.relationship }} • {{ contact.phone }}</div>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <a href="tel:{{ contact.phone }}" class="btn btn-sm btn-outline-success" title="Quick Call">
+                                            <i class="fa-solid fa-phone"></i>
+                                        </a>
+                                        <a href="https://wa.me/{{ contact.phone|replace('+', '')|replace(' ', '') }}?text=🚨%20EMERGENCY%20SOS%20ALERT!%20I%20am%20in%20danger%20and%20need%20urgent%20help!%20SafeHer%20Alert" target="_blank" class="btn btn-sm btn-outline-success text-success" title="Send WhatsApp">
+                                            <i class="fa-brands fa-whatsapp"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="text-center py-4 bg-dark rounded-3 border border-dashed border-secondary">
+                            <i class="fa-solid fa-user-plus text-white-50 fs-3 mb-2"></i>
+                            <div class="text-white fw-semibold">No emergency contacts added yet!</div>
+                            <div class="text-white-50 small mb-3">Add at least one trusted guardian so they receive instant SOS broadcasts.</div>
+                            <a href="{{ url_for('contacts_view') }}" class="btn btn-sm btn-primary rounded-pill px-3">Add Emergency Contact Now</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Mini Safe Havens Map Widget -->
+                <div class="col-12">
+                    <div class="safeher-card p-4">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="card-title-icon bg-success bg-opacity-25 text-success">
+                                    <i class="fa-solid fa-map-location-dot"></i>
+                                </div>
+                                <div>
+                                    <h5 class="fw-bold text-white mb-0">Nearby Safe Havens & Police</h5>
+                                    <div class="text-white-50 small">Quick radar of verified safe points nearest to you</div>
+                                </div>
+                            </div>
+                            <a href="{{ url_for('map_view') }}" class="btn btn-sm btn-outline-light rounded-pill">Open Full Map</a>
+                        </div>
+
+                        <div id="miniMap" class="mb-3"></div>
+
+                        <div class="d-flex justify-content-between align-items-center small text-white-50 flex-wrap gap-2">
+                            <span><i class="fa-solid fa-circle text-primary"></i> Your Location</span>
+                            <span><i class="fa-solid fa-circle text-info"></i> Police Stations</span>
+                            <span><i class="fa-solid fa-circle text-danger"></i> Emergency Hospitals</span>
+                            <span><i class="fa-solid fa-circle text-success"></i> 24/7 Chemists</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+<script src="{{ url_for('static', filename='js/map.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize mini map
+    initSafeMap('miniMap', false);
+});
+</script>
+{% endblock %}

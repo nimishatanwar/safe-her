@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}Emergency Incident History – SafeHer Platform{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-lg-4 py-4">
+    <!-- Header -->
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="fw-bold text-white mb-0"><i class="fa-solid fa-clock-rotate-left text-primary me-2"></i> SOS Incident History</h2>
+            <div class="text-white-50 small">Log of all distress signals dispatched, GPS coordinates recorded, and responder status</div>
+        </div>
+        <button class="btn btn-danger rounded-pill px-4 fw-bold shadow" onclick="quickSosTrigger()">
+            <i class="fa-solid fa-triangle-exclamation me-1"></i> Trigger SOS
+        </button>
+    </div>
+
+    <!-- Alerts Table Card -->
+    <div class="safeher-card p-4">
+        {% if alerts %}
+        <div class="table-responsive">
+            <table class="table table-dark-custom align-middle">
+                <thead>
+                    <tr>
+                        <th>Incident ID</th>
+                        <th>Nature of Emergency</th>
+                        <th>Location Coordinates</th>
+                        <th>Status</th>
+                        <th>Dispatched At</th>
+                        <th>Resolution Details</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for alert in alerts %}
+                    {% set badge_class = 'badge-status-active' if alert.status == 'ACTIVE' else ('badge-status-in-progress' if alert.status == 'IN_PROGRESS' else ('badge-status-resolved' if alert.status == 'RESOLVED' else 'badge-status-cancelled')) %}
+                    <tr class="{% if alert.status == 'ACTIVE' %}table-danger bg-opacity-10{% endif %}">
+                        <td class="fw-bold">#{{ alert.id }}</td>
+                        <td>
+                            <span class="badge bg-secondary text-light">{{ alert.alert_type }}</span>
+                        </td>
+                        <td>
+                            <div class="text-white small">{{ alert.location_address or 'Coordinates Pinpoint' }}</div>
+                            <a href="https://maps.google.com/?q={{ alert.latitude }},{{ alert.longitude }}" target="_blank" class="small text-info text-decoration-none">
+                                <i class="fa-solid fa-location-dot text-danger"></i> {{ "%.4f"|format(alert.latitude) }}, {{ "%.4f"|format(alert.longitude) }}
+                            </a>
+                        </td>
+                        <td>
+                            <span class="badge {{ badge_class }} px-2 py-1">{{ alert.status }}</span>
+                        </td>
+                        <td class="small text-white-50 font-monospace">{{ alert.created_at }}</td>
+                        <td>
+                            {% if alert.status == 'RESOLVED' %}
+                                <div class="small text-success"><i class="fa-solid fa-check"></i> {{ alert.notes or 'Resolved by Responder' }}</div>
+                                {% if alert.responded_by %}
+                                <div class="small text-white-50">By: {{ alert.responded_by }}</div>
+                                {% endif %}
+                            {% elif alert.status == 'ACTIVE' %}
+                                <div class="small text-danger fw-bold"><i class="fa-solid fa-triangle-exclamation fa-beat"></i> Active Broadcast In Progress</div>
+                            {% else %}
+                                <div class="small text-white-50">{{ alert.notes or 'No additional notes' }}</div>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            {% if alert.status == 'ACTIVE' %}
+                            <button class="btn btn-sm btn-outline-success rounded-pill" onclick="cancelActiveSos({{ alert.id }})">
+                                <i class="fa-solid fa-check"></i> I am Safe
+                            </button>
+                            {% else %}
+                            <a href="https://wa.me/?text=🚨%20SafeHer%20Incident%20%23{{ alert.id }}%20Location:%20https://maps.google.com/?q={{ alert.latitude }},{{ alert.longitude }}" target="_blank" class="btn btn-sm btn-outline-light rounded-pill">
+                                <i class="fa-brands fa-whatsapp text-success"></i> Share
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fa-solid fa-shield-check text-success fs-1 mb-3"></i>
+            <h4 class="fw-bold text-white mb-1">No Emergency Incidents</h4>
+            <p class="text-white-50 small mb-4">You have never triggered an SOS alert. All clear!</p>
+            <button class="btn btn-danger rounded-pill px-4 fw-bold" onclick="quickSosTrigger()">
+                Test SOS Trigger
+            </button>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

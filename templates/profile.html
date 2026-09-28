@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}User Profile – SafeHer Safety Platform{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="safeher-card p-4 p-md-5">
+                <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom border-secondary">
+                    <div class="user-avatar-badge" style="width: 56px; height: 56px; font-size: 1.5rem;">
+                        {{ current_user.name[:1].upper() }}
+                    </div>
+                    <div>
+                        <h3 class="fw-bold text-white mb-0">{{ current_user.name }}</h3>
+                        <div class="text-white-50 small">{{ current_user.email }} • <span class="badge bg-secondary">{{ current_user.role|capitalize }}</span></div>
+                    </div>
+                </div>
+
+                <form method="POST" action="{{ url_for('profile_view') }}">
+                    <div class="mb-3">
+                        <label for="name" class="form-label text-white-50 small">Full Name</label>
+                        <input type="text" class="form-control bg-dark text-white border-secondary" id="name" name="name" value="{{ current_user.name }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="phone" class="form-label text-white-50 small">Primary Phone Number</label>
+                        <input type="tel" class="form-control bg-dark text-white border-secondary" id="phone" name="phone" value="{{ current_user.phone }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="blood_group" class="form-label text-white-50 small">Blood Group</label>
+                        <select class="form-select bg-dark text-white border-secondary" id="blood_group" name="blood_group">
+                            <option value="" {% if not current_user.blood_group %}selected{% endif %}>Select Blood Group</option>
+                            {% for bg in ['O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-'] %}
+                            <option value="{{ bg }}" {% if current_user.blood_group == bg %}selected{% endif %}>{{ bg }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="address" class="form-label text-white-50 small">Home Address / Primary City</label>
+                        <input type="text" class="form-control bg-dark text-white border-secondary" id="address" name="address" value="{{ current_user.address or '' }}">
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="medical_notes" class="form-label text-white-50 small">Emergency Medical Notes</label>
+                        <textarea class="form-control bg-dark text-white border-secondary" id="medical_notes" name="medical_notes" rows="3">{{ current_user.medical_notes or '' }}</textarea>
+                        <div class="form-text text-white-50 small">This information is provided to ambulance and police dispatchers when you trigger SOS.</div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary rounded-pill fw-bold py-2">
+                            <i class="fa-solid fa-floppy-disk me-1"></i> Save Profile Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

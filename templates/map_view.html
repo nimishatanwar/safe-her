@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block title %}Nearby Safe Havens Map – SafeHer Platform{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-lg-4 py-4">
+    <!-- Header -->
+    <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+        <div>
+            <h2 class="fw-bold text-white mb-0"><i class="fa-solid fa-map-location-dot text-success me-2"></i> Safe Havens & Emergency Centers</h2>
+            <div class="text-white-50 small">Verified 24/7 police stations, trauma hospitals, pharmacies, and safe transit booths</div>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-light btn-sm rounded-pill" onclick="locateAndCenterUser(true)">
+                <i class="fa-solid fa-crosshairs text-info"></i> Recenter On My Location
+            </button>
+            <button class="btn btn-danger btn-sm rounded-pill px-3 fw-bold" onclick="quickSosTrigger()">
+                <i class="fa-solid fa-triangle-exclamation"></i> SOS Panic
+            </button>
+        </div>
+    </div>
+
+    <!-- Category Filters Toolbar -->
+    <div class="safeher-card p-2 px-3 mb-3 d-flex align-items-center gap-2 flex-wrap">
+        <span class="small text-white-50 fw-semibold me-2"><i class="fa-solid fa-filter"></i> Filter Category:</span>
+        <button id="filter-all" class="btn btn-sm btn-primary rounded-pill btn-filter px-3" onclick="filterCategory('all')">
+            All Safe Places
+        </button>
+        <button id="filter-police" class="btn btn-sm btn-outline-secondary rounded-pill btn-filter px-3 text-white" onclick="filterCategory('police')">
+            <i class="fa-solid fa-shield-halved text-primary me-1"></i> Police Stations
+        </button>
+        <button id="filter-hospital" class="btn btn-sm btn-outline-secondary rounded-pill btn-filter px-3 text-white" onclick="filterCategory('hospital')">
+            <i class="fa-solid fa-hospital text-danger me-1"></i> Emergency Hospitals
+        </button>
+        <button id="filter-pharmacy" class="btn btn-sm btn-outline-secondary rounded-pill btn-filter px-3 text-white" onclick="filterCategory('pharmacy')">
+            <i class="fa-solid fa-prescription-bottle-medical text-success me-1"></i> 24/7 Pharmacies
+        </button>
+        <button id="filter-safe_haven" class="btn btn-sm btn-outline-secondary rounded-pill btn-filter px-3 text-white" onclick="filterCategory('safe_haven')">
+            <i class="fa-solid fa-heart-pulse text-pink me-1"></i> Pink Booths / Helplines
+        </button>
+        <button id="filter-metro" class="btn btn-sm btn-outline-secondary rounded-pill btn-filter px-3 text-white" onclick="filterCategory('metro')">
+            <i class="fa-solid fa-train-subway text-purple me-1"></i> Metro Security
+        </button>
+    </div>
+
+    <!-- Map & Places Split View -->
+    <div class="row g-4">
+        <!-- Interactive Map -->
+        <div class="col-lg-8">
+            <div class="safeher-card p-3">
+                <div id="safeMap"></div>
+                <div class="d-flex justify-content-between align-items-center mt-3 text-white-50 small flex-wrap gap-2">
+                    <div class="d-flex gap-3 flex-wrap">
+                        <span><i class="fa-solid fa-circle text-primary"></i> You</span>
+                        <span><i class="fa-solid fa-circle text-info"></i> Police</span>
+                        <span><i class="fa-solid fa-circle text-danger"></i> Hospital</span>
+                        <span><i class="fa-solid fa-circle text-success"></i> Pharmacy</span>
+                        <span><i class="fa-solid fa-circle text-pink"></i> Safe Haven</span>
+                    </div>
+                    <span><i class="fa-solid fa-circle-info"></i> Click any pin to view phone & instant directions</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Safe Places Proximity List -->
+        <div class="col-lg-4">
+            <div class="safeher-card p-3 h-100 d-flex flex-column">
+                <div class="d-flex align-items-center justify-content-between mb-3 border-bottom border-secondary pb-2">
+                    <h5 class="fw-bold text-white mb-0"><i class="fa-solid fa-location-arrow text-warning me-1"></i> Nearest Safe Havens</h5>
+                    <span class="badge bg-secondary">Sorted by distance</span>
+                </div>
+                <div id="safePlacesList" class="flex-grow-1 overflow-auto" style="max-height: 480px;">
+                    <div class="text-white-50 text-center py-4">
+                        <i class="fa-solid fa-spinner fa-spin fs-4 mb-2"></i>
+                        <div>Calculating distance from your coordinates...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+<script src="{{ url_for('static', filename='js/map.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    initSafeMap('safeMap', true);
+});
+</script>
+{% endblock %}

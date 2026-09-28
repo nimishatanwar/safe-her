@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}Register – SafeHer Smart Women Safety Platform{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="safeher-card p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <div class="brand-icon mx-auto mb-2" style="width: 48px; height: 48px; font-size: 1.5rem;">
+                        <i class="fa-solid fa-shield-heart"></i>
+                    </div>
+                    <h3 class="fw-bold text-white mb-1">Create Your SafeHer Account</h3>
+                    <p class="text-white-50 small">Provide vital safety and medical details for emergency dispatchers</p>
+                </div>
+
+                <form method="POST" action="{{ url_for('register') }}">
+                    <div class="row g-3 mb-3">
+                        <div class="col-sm-6">
+                            <label for="name" class="form-label text-white-50 small">Full Name *</label>
+                            <input type="text" class="form-control bg-dark text-white border-secondary" id="name" name="name" required placeholder="e.g. Priya Sharma">
+                        </div>
+                        <div class="col-sm-6">
+                            <label for="phone" class="form-label text-white-50 small">Mobile Phone *</label>
+                            <input type="tel" class="form-control bg-dark text-white border-secondary" id="phone" name="phone" required placeholder="+91 9876543210">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label text-white-50 small">Email Address *</label>
+                        <input type="email" class="form-control bg-dark text-white border-secondary" id="email" name="email" required placeholder="name@example.com">
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-sm-6">
+                            <label for="password" class="form-label text-white-50 small">Password *</label>
+                            <input type="password" class="form-control bg-dark text-white border-secondary" id="password" name="password" required placeholder="••••••••">
+                        </div>
+                        <div class="col-sm-6">
+                            <label for="blood_group" class="form-label text-white-50 small">Blood Group (Optional)</label>
+                            <select class="form-select bg-dark text-white border-secondary" id="blood_group" name="blood_group">
+                                <option value="">Select Blood Group</option>
+                                <option value="O+">O Positive (O+)</option>
+                                <option value="O-">O Negative (O-)</option>
+                                <option value="A+">A Positive (A+)</option>
+                                <option value="A-">A Negative (A-)</option>
+                                <option value="B+">B Positive (B+)</option>
+                                <option value="B-">B Negative (B-)</option>
+                                <option value="AB+">AB Positive (AB+)</option>
+                                <option value="AB-">AB Negative (AB-)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="address" class="form-label text-white-50 small">Home Address / Primary City</label>
+                        <input type="text" class="form-control bg-dark text-white border-secondary" id="address" name="address" placeholder="e.g. Sector 62, Noida, UP">
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="medical_notes" class="form-label text-white-50 small">Emergency Medical Notes (Optional)</label>
+                        <textarea class="form-control bg-dark text-white border-secondary" id="medical_notes" name="medical_notes" rows="2" placeholder="e.g. Asthmatic, carries inhaler; allergic to penicillin"></textarea>
+                    </div>
+
+                    <div class="d-grid gap-2 mb-4">
+                        <button type="submit" class="btn btn-primary rounded-pill fw-bold py-2">
+                            <i class="fa-solid fa-user-plus me-2"></i> Register & Set Up Safety Network
+                        </button>
+                    </div>
+                </form>
+
+                <div class="text-center text-white-50 small">
+                    Already registered? 
+                    <a href="{{ url_for('login') }}" class="text-primary text-decoration-none fw-bold">Sign in here</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
